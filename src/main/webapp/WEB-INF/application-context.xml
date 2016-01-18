@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+						http://www.springframework.org/schema/tx 
+                       	http://www.springframework.org/schema/tx/spring-tx-4.0.xsd 
+						http://www.springframework.org/schema/context 
+						http://www.springframework.org/schema/context/spring-context-4.0.xsd 
+						http://cxf.apache.org/jaxrs 
+						http://cxf.apache.org/schemas/jaxrs.xsd
+						http://www.springframework.org/schema/jee 
+						http://www.springframework.org/schema/jee/spring-jee-4.0.xsd">
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="jax-rs.xml" />
+
+	<context:annotation-config />
+	<tx:annotation-driven />
+	<context:component-scan base-package="com.foo.app" />
+
+	<bean id="dataSource"
+	    class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	      <property name="driverClassName" value="${driverClassName}" />
+	      <property name="url" value="${url}" />
+	      <property name="username" value="${username}" />
+	      <property name="password" value="${password}" />
+   </bean>
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan" value="com.foo.app.model" />
+
+		<property name="hibernateProperties">
+			<map>
+				<entry key="hibernate.show_sql" value="true" />
+				<entry key="hibernate.hbm2ddl.auto" value="update" />
+			</map>
+		</property>
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<!--reads config property files from classpath -->
+	<bean id="placeholderConfig"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:FooApp/datasource.properties</value>
+			</list>
+		</property>
+	</bean>
+</beans>
